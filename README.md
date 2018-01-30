@@ -5,7 +5,7 @@ Rsync Backup
 
 A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
 
-See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) for a detailed explanation of how this backup system works.
+See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) for a detailed explanation of how incremental backups using rsync work
 
 ### Features (See [Feature Status](https://github.com/mattlyons0/Rsync-Backup/issues/1))
 - Full System Backup
@@ -38,3 +38,19 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
     - **There is no checksum after a file has been written to the disk (by default)**
     - If the kernel indicates the data was written rsync will assume this is the case
   - A checksum can be computed after writing to the disk with the `-c` option to ensure file integrity after writing to the disk
+
+### Usage
+- Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
+- Execute the backup
+  - Locally `node Rsync-Backup --dst /media/MyBackup`
+  - Remotely `node Rsync-Backup --shell ssh --dst username@myserver.com:/media/MyBackup`
+
+#### Parameters
+*Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
+- `--src PATH` *Default: /\**
+  - Source path to backup
+- `--dst PATH`
+  - Destination path for backup
+  - If using `--shell ssh` format is `username@server:destination/on/server`
+- `--shell SHELL`
+  - Remote shell to use
