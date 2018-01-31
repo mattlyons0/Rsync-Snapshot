@@ -47,10 +47,13 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
-- `--src PATH` *Default: /\**
+- `--src PATH` *Default:* `/*`
   - Source path to backup
 - `--dst PATH`
   - Destination path for backup
-  - If using `--shell ssh` format is `username@server:destination/on/server`
+  - If using `--shell ssh` format is `username@server:destinationPath`
 - `--shell SHELL`
   - Remote shell to use
+- `--logFormat FORMAT` *Default:* `json`
+  - Format used to log output
+  - Supported formats: `json` `text`
