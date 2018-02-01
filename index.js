@@ -8,30 +8,78 @@ const Rsync = require('rsync');
 const argv = require('minimist')(process.argv.slice(2));
 const debug = require('debug')('RsyncBackup:index');
 const logger = require('./lib/logger');
+const incrementer = require('./lib/incrementer');
 
-//Configure Rsync
-let rsync = new Rsync()
-  .executableShell('/bin/bash')
-  .shell(argv.shell) //Optionally set shell (ex: 'ssh' for remote transfers)
-  .flags('aAXHltv') //Archive (recursive, preserve props...), Preserve ACLs, Preserve Extended Props, Preserve Hardlinks, Preserve Symlinks, Preserve Modification Times, Verbose
-  .set('numeric-ids') //Use Numeric Group & User IDs
-  .set('delete') //Delete files on server that don't exist on client
-  .set('progress') //Show Current Filename
-  .set('info','progress2') //Show Total Progress
-  .source(argv.src || '/*')
-  .destination(argv.dst);
+let rsync;
+let rsyncPid;
+let linkDest;
+let tempDest;
 
-//Configure Logger
-logger.setFormat(argv.logFormat || 'json');
+let init = async () => {
+  //Required Params Check
+  if (!argv.dst) {
+    console.error('No arguments specified');
+    console.error('--dst is required');
+    process.exit(1);
+  }
 
-//Execute Rsync
-let rsyncPid = rsync.execute(logger.callback, logger.stdout, logger.stderr);
+  //Configure Rsync
+  rsync = new Rsync()
+    .executableShell('/bin/bash')
+    .shell(argv.shell) //Optionally set shell (ex: 'ssh' for remote transfers)
+    .flags('aAXHltv') //Archive (recursive, preserve props...), Preserve ACLs, Preserve Extended Props, Preserve Hardlinks, Preserve Symlinks, Preserve Modification Times, Verbose
+    .set('numeric-ids') //Use Numeric Group & User IDs
+    .set('delete') //Delete files on server that don't exist on client
+    .set('delete-excluded') //Delete files that are excluded but may already exist on server
+    .set('progress') //Show Current Filename
+    .set('info', 'progress2') //Show Total Progress
+    .source(argv.src || '/*');
 
-let quit = () => { //Handle killing rsync process
+  //Set Incremental Backup to Link From
+  incrementer.shell(argv.shell, argv.dst);
+  let prepared = await incrementer.prepare(); //Prepare for backup. Create incomplete dir and fetch link dest
+  if (!prepared) {
+    console.error('An error occurred preparing for incremental backup on server');
+    process.exit(2);
+  }
+  linkDest = incrementer.getLinkDest();
+  tempDest = incrementer.getTempDest();
+
+  let destSplit = argv.dst.split(':');
+  if(destSplit.length > 1) //SSH style syntax or local style
+    rsync.destination(`${destSplit[0]}:${tempDest}`);
+  else
+    rsync.destination(tempDest);
+  if(linkDest)
+    rsync.set('link-dest', linkDest);
+  else
+    console.log('No previous snapshots found, creating first snapshot.');
+
+  //Configure Logger
+  logger.setFormat(argv.logFormat || 'json');
+
+  //Execute Rsync
+  rsyncPid = rsync.execute(logger.callback, logger.stdout, logger.stderr);
+
+  //Mark Incremental Backup as Complete
+  logger.addSuccessCallback(async () => {
+    let finalized = await incrementer.finalize();
+    if(finalized)
+      console.log('Backup Successful');
+  });
+};
+
+function quit () { //Handle killing rsync process
   if(rsyncPid) //Kill Rsync on exit codes
     rsyncPid.kill();
-};
+}
 
 process.on('SIGINT', quit);
 process.on('SIGTERM', quit);
 process.on('exit', quit);
+
+try {
+  init();
+} catch(e){
+  console.error(e);
+}

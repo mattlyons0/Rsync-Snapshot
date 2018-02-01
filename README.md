@@ -50,10 +50,13 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--src PATH` *Default:* `/*`
   - Source path to backup
 - `--dst PATH`
-  - Destination path for backup
+  - Destination folder path for backup
   - If using `--shell ssh` format is `username@server:destinationPath`
+  - Folders will be created in this directory for incremental backup history
 - `--shell SHELL`
   - Remote shell to use
+  - *Note: Remote shell is assumed to be a ssh compatible client if specified*
+    - Ex: `ssh` or `ssh -p 2222`
 - `--logFormat FORMAT` *Default:* `json`
   - Format used to log output
   - Supported formats: `json` `text`
