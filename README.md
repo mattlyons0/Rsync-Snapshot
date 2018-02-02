@@ -60,3 +60,14 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--logFormat FORMAT` *Default:* `json`
   - Format used to log output
   - Supported formats: `json` `text`
+
+#### Recovery
+- Partial Recovery
+  - Since the backups are not compressed partial recovery is as easy as using SFTP (Filezilla works great if you want a GUI) and copying files over from the desired dated snapshot
+    - *Note: SFTP does not preserve all file attributes, if this is desired it is recommended to write a rsync script to transfer files using rsync parameters found in this script*
+      - At some point in the future I could make a flag for restores, if this would be useful to you feel free to open an issue
+- Complete Recovery
+  - Recovering an entire installation is very similar to partial recovery
+  - You will need to boot on a Live CD with access to networking, install rsync and then use it to rsync the files to the desired partition(s) (of course you will have to make the partition(s) first if they don't already exist)
+  - Note that you may have to update things like /etc/fstab if disk names have changed or regenerate the bootloader
+  - For more details see [Recovering entire systems from backups](http://www.sanitarium.net/golug/rsync_backups_2010.html)
