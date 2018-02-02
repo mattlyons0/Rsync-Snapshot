@@ -33,6 +33,7 @@ let init = async () => {
     .set('delete-excluded') //Delete files that are excluded but may already exist on server
     .set('progress') //Show Current Filename
     .set('info', 'progress2') //Show Total Progress
+    .exclude(excludeList)
     .source(argv.src || '/*');
 
   //Set Incremental Backup to Link From

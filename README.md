@@ -56,7 +56,7 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--shell SHELL`
   - Remote shell to use
   - *Note: Remote shell is assumed to be a ssh compatible client if specified*
-    - Ex: `ssh` or `ssh -p 2222`
+    - Ex: `ssh` or `"ssh -p 2222"`
 - `--logFormat FORMAT` *Default:* `json`
   - Format used to log output
   - Supported formats: `json` `text`
