@@ -7,15 +7,17 @@ const excludeList = ['/dev/*', '/proc/*', '/sys/*', '/tmp/*', '/run/*', '/mnt/*'
 const Rsync = require('rsync');
 const argv = require('minimist')(process.argv.slice(2));
 const debug = require('debug')('RsyncBackup:index');
-const logger = require('./lib/logger');
+const LogGenerator = require('./lib/LogGenerator');
 const incrementer = require('./lib/incrementer');
+
+let logger; //LogGenerator Instance
 
 let rsync;
 let rsyncPid;
 let linkDest;
 let tempDest;
 
-let init = async () => {
+let backup = async () => {
   //Required Params Check
   if (!argv.dst) {
     console.error('No arguments specified');
@@ -54,25 +56,25 @@ let init = async () => {
   if(linkDest)
     rsync.set('link-dest', linkDest);
   else
-    console.log('No previous snapshots found, creating first snapshot.');
+    debug('No previous snapshots found, creating first snapshot');
 
   //Configure Logger
-  logger.setFormat(argv.logFormat || 'json');
-  let success = await logger.setFilepath(argv.logFile);
-  if(!success){
-    console.error('Unable to write to logFile');
-    process.exit(3);
+  logger = new LogGenerator(argv.logFormat);
+  try {
+    await logger.setOutputFile(argv.logFile, argv.logFileLevel || 'ALL');
+  } catch(e){
+    console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
   }
-  logger.setDestinations(tempDest, linkDest);
+  logger.setDestination(tempDest, linkDest);
 
   //Execute Rsync
-  rsyncPid = rsync.execute(logger.callback, logger.stdout, logger.stderr);
+  rsyncPid = logger.startRsync(rsync);
 
-  //Mark Incremental Backup as Complete
-  logger.addSuccessCallback(async () => {
+  //Rename backup to remove .incomplete from name
+  logger.addCallback(async () => {
     let finalized = await incrementer.finalize();
     if(finalized) {
-      logger.finalized(incrementer.getFinalDest());
+      logger.setFinalDestination(incrementer.getFinalDest());
     }
   });
 };
@@ -86,8 +88,8 @@ process.on('SIGINT', quit);
 process.on('SIGTERM', quit);
 process.on('exit', quit);
 
-try {
-  init();
-} catch(e){
-  console.error(e);
-}
+
+//Execute Backup
+backup().catch((err) => {
+  console.error(err);
+});
