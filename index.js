@@ -58,6 +58,12 @@ let init = async () => {
 
   //Configure Logger
   logger.setFormat(argv.logFormat || 'json');
+  let success = await logger.setFilepath(argv.logFile);
+  if(!success){
+    console.error('Unable to write to logFile');
+    process.exit(3);
+  }
+  logger.setDestinations(tempDest, linkDest);
 
   //Execute Rsync
   rsyncPid = rsync.execute(logger.callback, logger.stdout, logger.stderr);
@@ -65,8 +71,9 @@ let init = async () => {
   //Mark Incremental Backup as Complete
   logger.addSuccessCallback(async () => {
     let finalized = await incrementer.finalize();
-    if(finalized)
-      console.log('Backup Successful');
+    if(finalized) {
+      logger.finalized(incrementer.getFinalDest());
+    }
   });
 };
 

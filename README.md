@@ -60,6 +60,9 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--logFormat FORMAT` *Default:* `json`
   - Format used to log output
   - Supported formats: `json` `text`
+- `--logFile PATH`
+  - Path to file used to write output in `logFormat`
+  - If file already exists it will be appended, otherwise it will be created
 
 #### Recovery
 - Partial Recovery
@@ -71,3 +74,9 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - You will need to boot on a Live CD with access to networking, install rsync and then use it to rsync the files to the desired partition(s) (of course you will have to make the partition(s) first if they don't already exist)
   - Note that you may have to update things like /etc/fstab if disk names have changed or regenerate the bootloader
   - For more details see [Recovering entire systems from backups](http://www.sanitarium.net/golug/rsync_backups_2010.html)
+
+  ### Additional Resources
+  - [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) - Tons of useful information and what this script is based on
+    - [Snapshot Diff Script](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/diff_backup.pl.txt) Script to find differences between two rsync snapshots
+    - [Partition Table Backup](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/getinfo.pl.txt) Script to backup the current partition table schema
+  - [Rsync Snapshot Backup - Arch Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup) Arch Linux Wiki Page on Rsync and using snapshots
