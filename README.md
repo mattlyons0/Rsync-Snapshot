@@ -19,6 +19,7 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - Script Hooks
 
 ### Requirements
+- NodeJS v7.6 or later - *async/await is used in this codebase*
 - Rsync must be installed on the client and the server
 - One machine must have SSH access to the other (if backing up over network) without a password (pubkey) and with complete read access
 
@@ -57,9 +58,12 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - Remote shell to use
   - *Note: Remote shell is assumed to be a ssh compatible client if specified*
     - Ex: `ssh` or `"ssh -p 2222"`
-- `--logFormat FORMAT` *Default:* `json`
+- `--logFormat FORMAT` *Default:* `text`
   - Format used to log output
-  - Supported formats: `json` `text`
+  - Supported formats:
+    - `json` - Rsync process output in JSON format
+    - `text` - An easy to read rsync process output
+    - `raw` - Output directly from rsync process
 - `--logFile PATH`
   - Path to file used to write output in `logFormat`
   - If file already exists it will be appended, otherwise it will be created

@@ -68,6 +68,7 @@ let backup = async () => {
   logger.setDestination(tempDest, linkDest);
 
   //Execute Rsync
+  debug('Executing command: '+rsync.command());
   rsyncPid = logger.startRsync(rsync);
 
   //Rename backup to remove .incomplete from name
