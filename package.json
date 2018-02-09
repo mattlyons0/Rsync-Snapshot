@@ -27,6 +27,6 @@
     "filesize": "^3.6.0",
     "fs-extra": "^5.0.0",
     "minimist": "^1.2.0",
-    "rsync": "^0.6.1"
+    "rsync": "github:mattlyons0/node-rsync"
   }
 }
