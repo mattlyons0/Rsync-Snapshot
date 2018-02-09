@@ -38,6 +38,22 @@ let backup = async () => {
     .exclude(excludeList)
     .source(argv.src || '/*');
 
+  //Configure Excludes
+  if(typeof argv.exclude === 'string')
+    rsync.exclude(argv.exclude);
+  else if(Array.isArray(argv.exclude)){
+    argv.exclude.forEach((excludeFile) => {
+      rsync.exclude(excludeFile);
+    });
+  }
+
+  //Configure Optional Flags
+  if(argv.checksum !== undefined)
+    rsync.set('checksum');
+  if(argv.accurateProgress !== undefined)
+    rsync.set('no-inc-recursive'); //Don't incrementally recurse files (Makes progress percentage actually useful)
+
+
   //Set Incremental Backup to Link From
   incrementer.shell(argv.shell, argv.dst);
   let prepared = await incrementer.prepare(); //Prepare for backup. Create incomplete dir and fetch link dest

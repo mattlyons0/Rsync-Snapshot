@@ -33,12 +33,13 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
     - It is recommended that database dumps are taken using database specific technology (ex: pg_dump for postgres)
     - The same applies to any write heavy application
 - Integrity
-  - Over the Network
-    - Checksums are used to verify data sent to server is correct as the file is being transfered
-  - Filesystem
-    - **There is no checksum after a file has been written to the disk (by default)**
-    - If the kernel indicates the data was written rsync will assume this is the case
-  - A checksum can be computed after writing to the disk with the `-c` option to ensure file integrity after writing to the disk
+  - Rsync **will always ensure transferred files are correctly reconstructed** in memory
+  - Rsync will then write the data in memory to the disk
+  - If the OS indicates a successful write, rsync will proceed
+    - There is no checksum done post write to disk as write correctness to be handled by the OS
+  - Rsync determines files to be transferred by default by comparing file size and modification date
+    - **Checksums are only generated for transferred files**
+    - The criteria to transfer files can be changed to comparing file size only using the `--checksum` flag
 
 ### Usage
 - Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
@@ -48,6 +49,7 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
+##### Rsync
 - `--src PATH` *Default:* `/*`
   - Source path to backup
 - `--dst PATH`
@@ -58,6 +60,22 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - Remote shell to use
   - *Note: Remote shell is assumed to be a ssh compatible client if specified*
     - Ex: `ssh` or `"ssh -p 2222"`
+- `--exclude PATH` *Can be used multiple times*
+  - Default Exclude List
+    - `/dev/*` `/proc/*` `/sys/*` `/tmp/*` `/run/*` `/mnt/*` `/media/*` `/var/lib/lxcfs` `/lost+found` `*/steam/steamapps` `/var/cache/apt` `/home/*/.thumbnails` `/home/*/.cache` `/home/*/.local/share/Trash` `/home/*/.gvfs` `/home/*/.npm` `/swapfile`
+  - Syntax
+    - Include empty folder in destination: `/dev/*`
+    - Do not include folder in destination: `/dev`
+    - Glob style syntax: `*/steam/steamapps` (Will exclude any file/folder ending with /steam/steamapps)
+    - [See Filter Rules](https://linux.die.net/man/1/rsync) for more information
+- `--checksum`
+  - Change default transfer criteria from comparing modification date and file size to just comparing file size
+  - This means the file size being the same is the only requirement needed to generate a checksum and transfer potential file differences
+    - Enabling this flag will incur a performance penalty as many more checksums may be generated
+- `--accurateProgress`
+  - Recurse all directories before transferring any files to generate a more accurate file tree
+  - *Note: This will increase memory usage substantially*
+##### Logging
 - `--logFormat FORMAT` *Default:* `text`
   - Format used to log output
   - Supported formats:
@@ -68,7 +86,14 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - Path to file used to write output in `logFormat`
   - If file already exists it will be appended, otherwise it will be created
 
-#### Recovery
+### Common Warnings/Errors
+- `rsync warning: some files vanished before they could be transferred (code 24)`
+- `file has vanished`
+  - These warnings indicate a file has been deleted between the time rsync started and stopped executing
+  - This does not mean the backup has failed, it is an expected warning as rsync does not take system level snapshots and data will not always be consistent
+    - See Data Consistency & Integrity section for more information
+
+### Recovery
 - Partial Recovery
   - Since the backups are not compressed partial recovery is as easy as using SFTP (Filezilla works great if you want a GUI) and copying files over from the desired dated snapshot
     - *Note: SFTP does not preserve all file attributes, if this is desired it is recommended to write a rsync script to transfer files using rsync parameters found in this script*
@@ -79,7 +104,7 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - Note that you may have to update things like /etc/fstab if disk names have changed or regenerate the bootloader
   - For more details see [Recovering entire systems from backups](http://www.sanitarium.net/golug/rsync_backups_2010.html)
 
-  ### Additional Resources
+### Additional Resources
   - [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) - Tons of useful information and what this script is based on
     - [Snapshot Diff Script](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/diff_backup.pl.txt) Script to find differences between two rsync snapshots
     - [Partition Table Backup](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/getinfo.pl.txt) Script to backup the current partition table schema
