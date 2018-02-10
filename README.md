@@ -38,8 +38,8 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - If the OS indicates a successful write, rsync will proceed
     - There is no checksum done post write to disk as write correctness to be handled by the OS
   - Rsync determines files to be transferred by default by comparing file size and modification date
-    - **Checksums are only generated for transferred files**
-    - The criteria to transfer files can be changed to comparing file size only using the `--checksum` flag
+    - **Checksums are only generated for potentially transferred files**
+    - The criteria to potentially transfer files can be changed to comparing file size only using the `--checksum` flag
 
 ### Usage
 - Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
@@ -85,6 +85,12 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--logFile PATH`
   - Path to file used to write output in `logFormat`
   - If file already exists it will be appended, otherwise it will be created
+- `--logFileLevel LEVEL` *Default:* `ALL`
+  - Level of output to write to log file
+  - Supported levels:
+    - `ALL` Log Progress, Warnings, Errors and Summary
+    - `WARN` Log Warnings, Errors and Summary
+    - `ERROR` Log Errors and Summary
 
 ### Common Warnings/Errors
 - `rsync warning: some files vanished before they could be transferred (code 24)`
