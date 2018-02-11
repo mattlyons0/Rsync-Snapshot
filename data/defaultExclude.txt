@@ -1,0 +1,17 @@
+/dev/*
+/proc/*
+/sys/*
+/tmp/*
+/run/*
+/mnt/*
+/media/*
+/var/lib/lxcfs
+/lost+found
+*/steam/steamapps
+/var/cache/apt
+/home/*/.thumbnails
+/home/*/.cache
+/home/*/.local/share/Trash
+/home/*/.gvfs
+/home/*/.npm
+/swapfile

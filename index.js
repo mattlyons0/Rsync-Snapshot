@@ -1,11 +1,8 @@
 'use strict';
 
-const excludeList = ['/dev/*', '/proc/*', '/sys/*', '/tmp/*', '/run/*', '/mnt/*', '/media/*', '/var/lib/lxcfs',
-  '/lost+found', '*/steam/steamapps', '/var/cache/apt', '/home/*/.thumbnails', '/home/*/.cache',
-  '/home/*/.local/share/Trash', '/home/*/.gvfs', '/home/*/.npm', '/swapfile'];
-
 const Rsync = require('rsync');
 const argv = require('minimist')(process.argv.slice(2));
+const path = require('path');
 const debug = require('debug')('RsyncBackup:index');
 const LogGenerator = require('./lib/LogGenerator');
 const Incrementer = require('./lib/Incrementer');
@@ -36,7 +33,6 @@ let backup = async () => {
     .set('delete-excluded') //Delete files that are excluded but may already exist on server
     .set('progress') //Show Current Filename
     .set('info', 'progress2') //Show Total Progress
-    .exclude(excludeList)
     .source(argv.src || '/*');
 
   //Configure Excludes
@@ -46,6 +42,12 @@ let backup = async () => {
     argv.exclude.forEach((excludeFile) => {
       rsync.exclude(excludeFile);
     });
+  }
+  //Configure ExcludeFile
+  if(typeof argv.excludeFile === 'string'){
+    rsync.set('exclude-from', path.resolve(argv.excludeFile));
+  } else { //Use default excludeFile
+    rsync.set('exclude-from', path.join(__dirname,'/data/defaultExclude.txt'));
   }
 
   //Configure Optional Flags

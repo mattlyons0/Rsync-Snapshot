@@ -61,13 +61,15 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - *Note: Remote shell is assumed to be a ssh compatible client if specified*
     - Ex: `ssh` or `"ssh -p 2222"`
 - `--exclude PATH` *Can be used multiple times*
-  - Default Exclude List
-    - `/dev/*` `/proc/*` `/sys/*` `/tmp/*` `/run/*` `/mnt/*` `/media/*` `/var/lib/lxcfs` `/lost+found` `*/steam/steamapps` `/var/cache/apt` `/home/*/.thumbnails` `/home/*/.cache` `/home/*/.local/share/Trash` `/home/*/.gvfs` `/home/*/.npm` `/swapfile`
+  - *Note: Unless `--excludeFile` is set [default exclude list](https://github.com/mattlyons0/Rsync-Backup/blob/master/data/defaultExclude.txt) will be used in addition to specified excludes*
   - Syntax
     - Include empty folder in destination: `/dev/*`
     - Do not include folder in destination: `/dev`
     - Glob style syntax: `*/steam/steamapps` (Will exclude any file/folder ending with /steam/steamapps)
     - [See Filter Rules](https://linux.die.net/man/1/rsync) for more information
+- `--excludeFile EXCLUDEFILE` *Default:  [defaultExclude.txt](https://github.com/mattlyons0/Rsync-Backup/blob/master/data/defaultExclude.txt)*
+  - Similar to `--exclude` but is passed a text file with an exclude rule per line
+  - For exclude rule syntax see `--exclude` documentation
 - `--checksum`
   - Change default transfer criteria from comparing modification date and file size to just comparing file size
   - This means the file size being the same is the only requirement needed to generate a checksum and transfer potential file differences
