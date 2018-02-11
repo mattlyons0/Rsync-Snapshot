@@ -75,6 +75,10 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `--accurateProgress`
   - Recurse all directories before transferring any files to generate a more accurate file tree
   - *Note: This will increase memory usage substantially*
+##### Snapshot Management
+- `--maxSnapshots NUMBER`
+  - Maximum number of snapshots
+  - Once number is exceeded, oldest snapshots will be deleted until the condition is met
 ##### Logging
 - `--logFormat FORMAT` *Default:* `text`
   - Format used to log output

@@ -65,6 +65,7 @@ let backup = async () => {
 
   //Set Incremental Backup to Link From
   incrementer = new Incrementer(logger, argv.shell, argv.dst);
+  incrementer.setMaxSnapshots(argv.maxSnapshots);
   let prepared = await incrementer.prepareForBackup(); //Prepare for backup. Create incomplete dir and fetch link dest
   if (!prepared) {
     console.error('An error occurred preparing for incremental backup on server');
@@ -93,6 +94,9 @@ let backup = async () => {
     let finalized = await incrementer.finalizeBackup();
     if(finalized) {
       logger.setFinalDestination(incrementer.finalDest);
+      let deleted = await incrementer.deleteOldSnapshots();
+      if(deleted)
+        logger.stopDelete();
     }
   });
 };
