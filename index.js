@@ -84,15 +84,17 @@ let backup = async () => {
     rsync.destination(tempDest);
   if(linkDest)
     rsync.set('link-dest', linkDest);
-  else
+  else {
     debug('No previous snapshots found, creating first snapshot');
+    logger.logger.log('stdout')({msgType: 'progress', status: 'No Previous Snapshots Detected, Creating Full Backup'});
+  }
 
   //Execute Rsync
   debug('Executing command: '+rsync.command());
   rsyncPid = logger.startRsync(rsync);
 
   //Rename backup to remove .incomplete from name
-  logger.addCallback(async () => {
+  logger.addSuccessCallback(async () => {
     let finalized = await incrementer.finalizeBackup();
     if(finalized) {
       logger.setFinalDestination(incrementer.finalDest);

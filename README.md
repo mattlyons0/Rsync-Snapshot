@@ -103,6 +103,7 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `file has vanished`
   - These warnings indicate a file has been deleted between the time rsync started and stopped executing
   - This does not mean the backup has failed, it is an expected warning as rsync does not take system level snapshots and data will not always be consistent
+    - This message should be used a warning that said file may need to be backed up using a different method in order to ensure its consistency
     - See Data Consistency & Integrity section for more information
 
 ### Recovery
