@@ -8,9 +8,10 @@ const Rsync = require('rsync');
 const argv = require('minimist')(process.argv.slice(2));
 const debug = require('debug')('RsyncBackup:index');
 const LogGenerator = require('./lib/LogGenerator');
-const incrementer = require('./lib/incrementer');
+const Incrementer = require('./lib/Incrementer');
 
 let logger; //LogGenerator Instance
+let incrementer; //Incrementer instance
 
 let rsync;
 let rsyncPid;
@@ -53,16 +54,25 @@ let backup = async () => {
   if(argv.accurateProgress !== undefined)
     rsync.set('no-inc-recursive'); //Don't incrementally recurse files (Makes progress percentage actually useful)
 
+  //Configure Logger
+  logger = new LogGenerator(argv.logFormat);
+  try {
+    await logger.setOutputFile(argv.logFile, argv.logFileLevel || 'ALL');
+  } catch(e){
+    console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
+  }
+  logger.startPrepare();
 
   //Set Incremental Backup to Link From
-  incrementer.shell(argv.shell, argv.dst);
-  let prepared = await incrementer.prepare(); //Prepare for backup. Create incomplete dir and fetch link dest
+  incrementer = new Incrementer(logger, argv.shell, argv.dst);
+  let prepared = await incrementer.prepareForBackup(); //Prepare for backup. Create incomplete dir and fetch link dest
   if (!prepared) {
     console.error('An error occurred preparing for incremental backup on server');
     process.exit(2);
   }
-  linkDest = incrementer.getLinkDest();
-  tempDest = incrementer.getTempDest();
+  linkDest = incrementer.linkDest;
+  tempDest = incrementer.tempDest;
+  logger.setDestination(tempDest, linkDest);
 
   let destSplit = argv.dst.split(':');
   if(destSplit.length > 1) //SSH style syntax or local style
@@ -74,24 +84,15 @@ let backup = async () => {
   else
     debug('No previous snapshots found, creating first snapshot');
 
-  //Configure Logger
-  logger = new LogGenerator(argv.logFormat);
-  try {
-    await logger.setOutputFile(argv.logFile, argv.logFileLevel || 'ALL');
-  } catch(e){
-    console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
-  }
-  logger.setDestination(tempDest, linkDest);
-
   //Execute Rsync
   debug('Executing command: '+rsync.command());
   rsyncPid = logger.startRsync(rsync);
 
   //Rename backup to remove .incomplete from name
   logger.addCallback(async () => {
-    let finalized = await incrementer.finalize();
+    let finalized = await incrementer.finalizeBackup();
     if(finalized) {
-      logger.setFinalDestination(incrementer.getFinalDest());
+      logger.setFinalDestination(incrementer.finalDest);
     }
   });
 };
