@@ -63,7 +63,7 @@ let backup = async () => {
   } catch(e){
     console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
   }
-  logger.startPrepare();
+  logger.logStateChange('Preparing Backup');
 
   //Set Incremental Backup to Link From
   incrementer = new Incrementer(logger, argv.shell, argv.dst);
@@ -100,7 +100,7 @@ let backup = async () => {
       logger.setFinalDestination(incrementer.finalDest);
       let deleted = await incrementer.deleteOldSnapshots();
       if(deleted)
-        logger.stopDelete();
+        logger.logStateChange('Deleted Oldest Snapshots');
     }
   });
 };
@@ -116,6 +116,19 @@ process.on('exit', quit);
 
 
 //Execute Backup
-backup().catch((err) => {
-  console.error(err);
-});
+backup().catch(mainProcessError);
+
+process.on('unhandledRejection', mainProcessError);
+process.on('uncaughtException', mainProcessError);
+
+function mainProcessError(err){
+  try {
+    if (logger) {
+      logger.logger.log('stderr')(err);
+    } else {
+      throw new Error();
+    }
+  } catch(newErr){
+    console.error(err);
+  }
+}
