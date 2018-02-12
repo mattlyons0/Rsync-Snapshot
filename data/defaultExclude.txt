@@ -7,7 +7,7 @@
 /media/*
 /var/lib/lxcfs
 /lost+found
-*/steam/steamapps
+*/steam/steamapps/*
 /var/cache/apt
 /home/*/.thumbnails
 /home/*/.cache
