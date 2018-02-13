@@ -1,51 +1,37 @@
 Rsync Backup
 ============
 
-#### *Currently a Work In Progress* [Feature Status](https://github.com/mattlyons0/Rsync-Backup/issues/1)
-
 A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
 
 See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) for a detailed explanation of how incremental backups using rsync work
 
-### Features (See [Feature Status](https://github.com/mattlyons0/Rsync-Backup/issues/1))
+### Features
 - Full System Backup
-  - Backup of `/` with attributes
-  - Networked backups over the SSH Protocol
-  - Transfers file deltas only (No need to transfer entire files, just the changes)
+  - Backup of `/` (or any other folder) with permissions and other attributes preserved
+  - Encrypted networked backups over the SSH Protocol
+  - Transfer file deltas only (No need to transfer entire files, just the changes)
 - Incremental History
   - Using Hardlinks incremental history is stored
-  - Auto deletion of increments after specified number of days have passed
+  - Auto deletion of oldest snapshots after specified number of snapshots is exceeded
 - Logging
+  - Multiple output modes (json, text and raw rsync output)
+  - Log to file
+  - Multiple logging levels supported
 - Script Hooks
+  - Execute scripts before or after backup
 
 ### Requirements
-- NodeJS v7.6 or later - *async/await is used in this codebase*
+- NodeJS v7.6 or later - *async/await is used in codebase*
 - Rsync must be installed on the client and the server
 - One machine must have SSH access to the other (if backing up over network) without a password (pubkey) and with complete read access
 
-### Data Consistency & Integrity
-Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
-- Consistency
-  - Rsync can not take snapshots like certain file systems (ZFS, LVM...) this means **if there are changes to files between this script starting and finishing the files could have been copied in any state**
-  - Rsync first builds a list of files then transfers only the deltas of each file from the client to the server
-  - This means that files created after rsync has built a list of files will not be transfered
-  - Because consistency is not ensured, **this backup solution is not sufficient for database backups**
-    - It is recommended that database dumps are taken using database specific technology (ex: pg_dump for postgres)
-    - The same applies to any write heavy application
-- Integrity
-  - Rsync **will always ensure transferred files are correctly reconstructed** in memory
-  - Rsync will then write the data in memory to the disk
-  - If the OS indicates a successful write, rsync will proceed
-    - There is no checksum done post write to disk as write correctness to be handled by the OS
-  - Rsync determines files to be transferred by default by comparing file size and modification date
-    - **Checksums are only generated for potentially transferred files**
-    - The criteria to potentially transfer files can be changed to comparing file size only using the `--checksum` flag
-
 ### Usage
 - Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
+- Install Dependencies `npm install` (There are very few)
 - Execute the backup
   - Locally `node Rsync-Backup --dst /media/MyBackup`
   - Remotely `node Rsync-Backup --shell ssh --dst username@myserver.com:/media/MyBackup`
+- It is recommended to schedule this command to run regularly in cron or alike
 
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
@@ -106,6 +92,24 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
     - `ALL` Log Progress, Warnings, Errors and Summary
     - `WARN` Log Warnings, Errors and Summary
     - `ERROR` Log Errors and Summary
+
+### Data Consistency & Integrity
+Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
+- Consistency
+  - Rsync can not take snapshots like certain file systems (ZFS, LVM...) this means **if there are changes to files between this script starting and finishing the files could have been copied in any state**
+  - Rsync first builds a list of files then transfers only the deltas of each file from the client to the server
+  - This means that files created after rsync has built a list of files will not be transfered
+  - Because consistency is not ensured, **this backup solution is not sufficient for database backups**
+    - It is recommended that database dumps are taken using database specific technology (ex: pg_dump for postgres)
+    - The same applies to any write heavy application
+- Integrity
+  - Rsync **will always ensure transferred files are correctly reconstructed** in memory
+  - Rsync will then write the data in memory to the disk
+  - If the OS indicates a successful write, rsync will proceed
+    - There is no checksum done post write to disk as write correctness to be handled by the OS
+  - Rsync determines files to be transferred by default by comparing file size and modification date
+    - **Checksums are only generated for potentially transferred files**
+    - The criteria to potentially transfer files can be changed to comparing file size only using the `--checksum` flag
 
 ### Common Warnings/Errors
 - `rsync warning: some files vanished before they could be transferred (code 24)`

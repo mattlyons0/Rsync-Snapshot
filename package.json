@@ -1,6 +1,6 @@
 {
   "name": "rsync-backup",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "A incremental full system backup solution using rsync",
   "main": "index.js",
   "scripts": {
