@@ -89,6 +89,21 @@ let backup = async () => {
     logger.logger.log('stdout')({msgType: 'progress', status: 'No Previous Snapshots Detected, Creating Full Backup'});
   }
 
+  //Configure Script Before Backup Hooks
+  let runBefore = [];
+  if(argv.runBefore !== undefined){
+    runBefore = argv.runBefore;
+    if(!Array.isArray(argv.runBefore))
+      runBefore = [argv.runBefore];
+  }
+
+  if(runBefore.length){
+    logger.logStateChange('Executing Pre Backup Hooks');
+    for(let executablePath of runBefore){
+      await incrementer.executeScriptHook(executablePath);
+    }
+  }
+
   //Execute Rsync
   debug('Executing command: '+rsync.command());
   rsyncPid = logger.startRsync(rsync);
@@ -98,10 +113,33 @@ let backup = async () => {
     let finalized = await incrementer.finalizeBackup();
     if(finalized) {
       logger.setFinalDestination(incrementer.finalDest);
-      let deleted = await incrementer.deleteOldSnapshots();
-      if(deleted)
-        logger.logStateChange('Deleted Oldest Snapshots');
+      await incrementer.deleteOldSnapshots();
     }
+  });
+
+  //Configure Script After Backup Hooks
+  let runAfter = [];
+  if(argv.runAfter !== undefined){
+    runAfter = argv.runAfter;
+    if(!Array.isArray(argv.runAfter))
+      runAfter = [argv.runAfter];
+  }
+
+  if(runAfter.length){
+    logger.addSuccessCallback(() => {
+      logger.logStateChange('Executing Post Backup Hooks');
+    });
+
+    runAfter.forEach((executablePath) => {
+      logger.addSuccessCallback(async () => {
+        await incrementer.executeScriptHook(executablePath);
+      });
+    });
+  }
+
+  //Success Message
+  logger.addSuccessCallback(() => {
+    logger.logStateChange('Backup Finalized')
   });
 };
 

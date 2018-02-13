@@ -76,11 +76,20 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
     - Enabling this flag will incur a performance penalty as many more checksums may be generated
 - `--accurateProgress`
   - Recurse all directories before transferring any files to generate a more accurate file tree
-  - *Note: This will increase memory usage substantially*
+  - *Note: This will increase memory usage substantially (10x increase is possible)*
 ##### Snapshot Management
 - `--maxSnapshots NUMBER`
   - Maximum number of snapshots
   - Once number is exceeded, oldest snapshots will be deleted until the condition is met
+##### Script Hooks
+  Script Hooks can be used to run scripts before or after backup on the client while using the same log file as the backup process. Script hooks are not run in parallel.
+- `--runBefore EXECUTABLE` *Can be used multiple times*
+  - Script to run on client before backup (file will be executed directly and output will be logged)
+  - Can be useful for taking backups of data that requires consistency (ex: running pg_dump) and putting it in a folder that will be transfered by Rsync in the backup
+- `--runAfter EXECUTABLE` *Can be used multiple times*
+  - Script to run on client after backup
+  - Hook will only trigger if backup is successful
+  - Can be useful for deleting temporary data after it is successfully transferred
 ##### Logging
 - `--logFormat FORMAT` *Default:* `text`
   - Format used to log output
