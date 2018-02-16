@@ -1,6 +1,6 @@
 'use strict';
 
-const Rsync = require('rsync');
+const Rsync = require('@mattlyons/rsync');
 const argv = require('minimist')(process.argv.slice(2));
 const path = require('path');
 const debug = require('debug')('RsyncSnapshot:index');
