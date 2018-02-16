@@ -6,9 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "rsync-snapshot": "index.js"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mattlyons0/Rsync-Backup.git"
+    "url": "git+https://github.com/mattlyons0/Rsync-Snapshot.git"
   },
   "keywords": [
     "rsync",
@@ -19,9 +22,9 @@
   "author": "Matt Lyons <matt@mattlyons.net>",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/mattlyons0/Rsync-Backup/issues"
+    "url": "https://github.com/mattlyons0/Rsync-Snapshot/issues"
   },
-  "homepage": "https://github.com/mattlyons0/Rsync-Backup#readme",
+  "homepage": "https://github.com/mattlyons0/Rsync-Snapshot#readme",
   "dependencies": {
     "debug": "^3.1.0",
     "filesize": "^3.6.0",

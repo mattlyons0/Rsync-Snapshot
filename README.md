@@ -23,7 +23,8 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 ### Requirements
 - NodeJS v7.6 or later - *async/await is used in codebase*
 - Rsync must be installed on the client and the server
-- One machine must have SSH access to the other (if backing up over network) without a password (pubkey) and with complete read access
+- One machine (client) must have SSH access to the other (server) if backing up over network, without a password (pubkey)
+  - 
 
 ### Usage
 - Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
