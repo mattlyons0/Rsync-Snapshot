@@ -3,7 +3,7 @@
 const Rsync = require('rsync');
 const argv = require('minimist')(process.argv.slice(2));
 const path = require('path');
-const debug = require('debug')('RsyncBackup:index');
+const debug = require('debug')('RsyncSnapshot:index');
 const LogGenerator = require('./lib/LogGenerator');
 const Incrementer = require('./lib/Incrementer');
 

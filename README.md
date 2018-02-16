@@ -1,4 +1,4 @@
-Rsync Backup
+Rsync Snapshot
 ============
 
 A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
@@ -29,8 +29,8 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
 - Install Dependencies `npm install` (There are very few)
 - Execute the backup
-  - Locally `node Rsync-Backup --dst /media/MyBackup`
-  - Remotely `node Rsync-Backup --shell ssh --dst username@myserver.com:/media/MyBackup`
+  - Locally `node Rsync-Snapshot --dst /media/MyBackup`
+  - Remotely `node Rsync-Snapshot --shell ssh --dst username@myserver.com:/media/MyBackup`
 - It is recommended to schedule this command to run regularly in cron or alike
 
 #### Parameters
@@ -47,13 +47,13 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
   - *Note: Remote shell is assumed to be a ssh compatible client if specified*
     - Ex: `ssh` or `"ssh -p 2222"`
 - `--exclude PATH` *Can be used multiple times*
-  - *Note: Unless `--excludeFile` is set [default exclude list](https://github.com/mattlyons0/Rsync-Backup/blob/master/data/defaultExclude.txt) will be used in addition to specified excludes*
+  - *Note: Unless `--excludeFile` is set [default exclude list](https://github.com/mattlyons0/Rsync-Snapshot/blob/master/data/defaultExclude.txt) will be used in addition to specified excludes*
   - Syntax
     - Include empty folder in destination: `/dev/*`
     - Do not include folder in destination: `/dev`
     - Glob style syntax: `*/steam/steamapps` (Will exclude any file/folder ending with /steam/steamapps)
     - [See Filter Rules](https://linux.die.net/man/1/rsync) for more information
-- `--excludeFile EXCLUDEFILE` *Default:  [defaultExclude.txt](https://github.com/mattlyons0/Rsync-Backup/blob/master/data/defaultExclude.txt)*
+- `--excludeFile EXCLUDEFILE` *Default:  [defaultExclude.txt](https://github.com/mattlyons0/Rsync-Snapshot/blob/master/data/defaultExclude.txt)*
   - Similar to `--exclude` but is passed a text file with an exclude rule per line
   - For exclude rule syntax see `--exclude` documentation
 - `--checksum`
