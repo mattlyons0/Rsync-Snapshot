@@ -1,5 +1,5 @@
 Rsync Snapshot
-============
+==============
 
 A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
 

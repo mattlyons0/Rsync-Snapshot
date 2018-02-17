@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - "node"
+
+deploy:
+  provider: npm
+  email: npm@mattlyons.net
+  api_key: $NPM_TOKEN
+  on:
+    tags: true

@@ -1,10 +1,10 @@
 {
   "name": "rsync-snapshot",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "description": "A incremental full system backup solution using rsync",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "bin": {
     "rsync-snapshot": "bin/rsync-snapshot"
