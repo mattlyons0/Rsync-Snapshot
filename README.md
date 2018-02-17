@@ -24,14 +24,13 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - NodeJS v7.6 or later - *async/await is used in codebase*
 - Rsync must be installed on the client and the server
 - One machine (client) must have SSH access to the other (server) if backing up over network, without a password (pubkey)
-  - 
+  - This script is designed to be run from the machine data is being backed up from
 
 ### Usage
-- Clone this repo `git clone https://github.com/mattlyons0/Rsync-Backup.git`
-- Install Dependencies `npm install` (There are very few)
+- Install Globally `npm install -g rsync-snapshot`
 - Execute the backup
-  - Locally `node Rsync-Snapshot --dst /media/MyBackup`
-  - Remotely `node Rsync-Snapshot --shell ssh --dst username@myserver.com:/media/MyBackup`
+  - Locally `rsync-snapshot --dst /media/MyBackup`
+  - Remotely `rsync-snapshot --shell ssh --dst username@myserver.com:/media/MyBackup`
 - It is recommended to schedule this command to run regularly in cron or alike
 
 #### Parameters
