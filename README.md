@@ -32,6 +32,8 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
   - Locally `rsync-snapshot --dst /media/MyBackup`
   - Remotely `rsync-snapshot --shell ssh --dst username@myserver.com:/media/MyBackup`
 - It is recommended to schedule this command to run regularly in cron or alike
+  - When scheduling this script run it is best to update `rsync-snapshot` regularly
+  - Execute `npm update -g rsync-snapshot` to update to latest **minor** version
 
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
