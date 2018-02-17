@@ -4,7 +4,7 @@
   "description": "A incremental full system backup solution using rsync",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"No test specified\""
   },
   "bin": {
     "rsync-snapshot": "bin/rsync-snapshot"
