@@ -7,8 +7,9 @@
 /media/*
 /var/lib/lxcfs
 /lost+found
-*/steam/steamapps/*
+*/steamapps/*
 /var/cache/apt
+/var/cache/pacman/pkg/*
 /home/*/.thumbnails
 /home/*/.cache
 /home/*/.local/share/Trash
