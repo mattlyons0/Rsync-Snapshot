@@ -34,6 +34,9 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - It is recommended to schedule this command to run regularly in cron or alike
   - When scheduling this script run it is best to update `rsync-snapshot` regularly
   - Execute `npm update -g rsync-snapshot` to update to latest **minor** version
+- Backups will be in a folder named by time and date (ex: `2018-02-21.19-06-26`)
+  - Anything may be appended (manually) to folder names to add user friendly info (ex: `2018-02-21.19-06-26.createdDatabase`) as long as `.incomplete` is not appended (which is reserved for backups in progress, failed or canceled)
+  - `ls -1 | sort -r` can be used to sort backups (most recent to least recent)
 
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
