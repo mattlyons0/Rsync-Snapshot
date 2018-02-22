@@ -10,6 +10,9 @@ const Incrementer = require('./lib/Incrementer');
 let logger; //LogGenerator Instance
 let incrementer; //Incrementer instance
 
+let restore = argv.restore;
+let backupStr = restore?'Restore':'Backup';
+
 let rsync;
 let rsyncPid;
 let linkDest;
@@ -63,30 +66,37 @@ let backup = async () => {
   } catch(e){
     console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
   }
-  logger.logStateChange('Preparing Backup');
+  logger.logStateChange(`Preparing ${backupStr}`);
 
   //Set Incremental Backup to Link From
   incrementer = new Incrementer(logger, argv.shell, argv.dst);
-  incrementer.setMaxSnapshots(argv.maxSnapshots);
-  let prepared = await incrementer.prepareForBackup(); //Prepare for backup. Create incomplete dir and fetch link dest
-  if (!prepared) {
-    console.error('An error occurred preparing for incremental backup on server');
-    process.exit(2);
-  }
-  linkDest = incrementer.linkDest;
-  tempDest = incrementer.tempDest;
-  logger.setDestination(tempDest, linkDest);
+  if(!restore) {
+    incrementer.setMaxSnapshots(argv.maxSnapshots);
+    let prepared = await incrementer.prepareForBackup(); //Prepare for backup. Create incomplete dir and fetch link dest
+    if (!prepared) {
+      console.error('An error occurred preparing for incremental backup on server');
+      process.exit(2);
+    }
+    linkDest = incrementer.linkDest;
+    tempDest = incrementer.tempDest;
+    logger.setDestination(tempDest, linkDest);
 
-  let destSplit = argv.dst.split(':');
-  if(destSplit.length > 1) //SSH style syntax or local style
-    rsync.destination(`${destSplit[0]}:${tempDest}`);
-  else
-    rsync.destination(tempDest);
-  if(linkDest)
-    rsync.set('link-dest', linkDest);
-  else {
-    debug('No previous snapshots found, creating first snapshot');
-    logger.logger.log('stdout')({msgType: 'progress', status: 'No Previous Snapshots Detected, Creating Full Backup'});
+    let destSplit = argv.dst.split(':');
+    if (destSplit.length > 1) //SSH style syntax or local style
+      rsync.destination(`${destSplit[0]}:${tempDest}`);
+    else
+      rsync.destination(tempDest);
+    if (linkDest)
+      rsync.set('link-dest', linkDest);
+    else {
+      debug('No previous snapshots found, creating first snapshot');
+      logger.logger.log('stdout')({
+        msgType: 'progress',
+        status: 'No Previous Snapshots Detected, Creating Full Backup'
+      });
+    }
+  } else { //If we are restoring
+    rsync.destination(argv.dst);
   }
 
   //Configure Script Before Backup Hooks
@@ -98,7 +108,7 @@ let backup = async () => {
   }
 
   if(runBefore.length){
-    logger.logStateChange('Executing Pre Backup Hooks');
+    logger.logStateChange(`Executing Pre ${backupStr} Hooks`);
     for(let executablePath of runBefore){
       await incrementer.executeScriptHook(executablePath);
     }
@@ -110,6 +120,9 @@ let backup = async () => {
 
   //Rename backup to remove .incomplete from name
   logger.addSuccessCallback(async () => {
+    if(restore)
+      return;
+
     let finalized = await incrementer.finalizeBackup();
     if(finalized) {
       logger.setFinalDestination(incrementer.finalDest);
@@ -127,7 +140,7 @@ let backup = async () => {
 
   if(runAfter.length){
     logger.addSuccessCallback(() => {
-      logger.logStateChange('Executing Post Backup Hooks');
+      logger.logStateChange(`Executing Post ${backupStr} Hooks`);
     });
 
     runAfter.forEach((executablePath) => {
@@ -139,7 +152,7 @@ let backup = async () => {
 
   //Success Message
   logger.addSuccessCallback(() => {
-    logger.logStateChange('Backup Finalized')
+    logger.logStateChange(`${backupStr} Finalized`)
   });
 };
 

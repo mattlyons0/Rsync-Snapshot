@@ -97,6 +97,11 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
     - `ALL` Log Progress, Warnings, Errors and Summary
     - `WARN` Log Warnings, Errors and Summary
     - `ERROR` Log Errors and Summary
+##### Restore
+  - `--restore`
+    - Clone files from `--src` to `--dst`
+    - If this flag is used snapshots are not used, this flag enables a simple rsync copy from the source to destination
+      - All snapshot management flags will be ignored
 
 ### Data Consistency & Integrity
 Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
@@ -134,6 +139,7 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
   - You will need to boot on a Live CD with access to networking, install rsync and then use it to rsync the files to the desired partition(s) (of course you will have to make the partition(s) first if they don't already exist)
   - Note that you may have to update things like /etc/fstab if disk names have changed or regenerate the bootloader
   - For more details see [Recovering entire systems from backups](http://www.sanitarium.net/golug/rsync_backups_2010.html)
+  - If the server with backups has ssh access to the client, see `--restore`
 
 ### Additional Resources
   - [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) - Tons of useful information and what this script is based on
