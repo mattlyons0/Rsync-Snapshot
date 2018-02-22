@@ -11,7 +11,7 @@ let logger; //LogGenerator Instance
 let incrementer; //Incrementer instance
 
 let restore = argv.restore;
-let backupStr = restore?'Restore':'Backup';
+var backupStr = restore?'Restore':'Backup';
 
 let rsync;
 let rsyncPid;
