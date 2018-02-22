@@ -100,6 +100,7 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 ##### Restore
   - `--restore`
     - Clone files from `--src` to `--dst`
+      - *Note: Since there is no snapshot management done in restore mode, restores can be done from server to client or client to server by switching the destination and source arguments*
     - If this flag is used snapshots are not used, this flag enables a simple rsync copy from the source to destination
       - All snapshot management flags will be ignored
 
