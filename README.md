@@ -26,7 +26,7 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - One machine (client) must have SSH access to the other (server) if backing up over network, without a password (pubkey)
   - This script is designed to be run from the machine data is being backed up from (the client)
   - This script requires root access on the client to backup `/` and root access on the server to be able to set correct file ownership
-    - See [Rsync files over SSH without root user](https://unix.stackexchange.com/a/92125/125231) for details on recommended method of using root on server
+    - In order to run this script passwordless sudo on rsync from the SSH user is required. This must be manually configured on the server. See [Editing /etc/sudoers](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#comment139116_92125) for details
     - If root is not used on server all files will be owned by the user logged in via ssh which will lead to errors on restore
 
 ### Usage
@@ -73,7 +73,7 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
   - *Note: This will increase memory usage substantially (10x increase is possible)*
 - `--noDelete`
   - Don't delete existing files in `--dst`
-- `rsyncPath PATH` *Defaults to* `rsync`
+- `rsyncPath PATH` *Defaults to* `"sudo rsync"`
   - Command to execute rsync
   - If using SSH `"sudo rsync"` is recommended however it requires additional setup as a password prompt can not be asked (/etc/sudoers file must be modified to set NOPASSWD for rsync, see [Rsync over ssh without root](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#92125))
 ##### Snapshot Management

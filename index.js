@@ -62,6 +62,8 @@ let backup = async () => {
   }
   if(argv.rsyncPath)
     rsync.set('rsync-path', argv.rsyncPath);
+  else
+    rsync.set('rsync-path', 'sudo rsync');
 
   //Configure Logger
   logger = new LogGenerator(argv.logFormat, backupStr);
