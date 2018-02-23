@@ -11,7 +11,7 @@ let logger; //LogGenerator Instance
 let incrementer; //Incrementer instance
 
 let restore = argv.restore;
-var backupStr = restore?'Restore':'Backup';
+let backupStr = restore?'Restore':'Backup';
 
 let rsync;
 let rsyncPid;
@@ -60,7 +60,7 @@ let backup = async () => {
     rsync.set('no-inc-recursive'); //Don't incrementally recurse files (Makes progress percentage actually useful)
 
   //Configure Logger
-  logger = new LogGenerator(argv.logFormat);
+  logger = new LogGenerator(argv.logFormat, backupStr);
   try {
     await logger.setOutputFile(argv.logFile, argv.logFileLevel || 'ALL');
   } catch(e){
