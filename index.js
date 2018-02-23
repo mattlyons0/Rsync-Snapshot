@@ -32,8 +32,6 @@ let backup = async () => {
     .shell(argv.shell) //Optionally set shell (ex: 'ssh' for remote transfers)
     .flags('aAXHltv') //Archive (recursive, preserve props...), Preserve ACLs, Preserve Extended Props, Preserve Hardlinks, Preserve Symlinks, Preserve Modification Times, Verbose
     .set('numeric-ids') //Use Numeric Group & User IDs
-    .set('delete') //Delete files on server that don't exist on client
-    .set('delete-excluded') //Delete files that are excluded but may already exist on server
     .set('progress') //Show Current Filename
     .set('info', 'progress2') //Show Total Progress
     .source(argv.src || '/*');
@@ -58,6 +56,10 @@ let backup = async () => {
     rsync.set('checksum');
   if(argv.accurateProgress !== undefined)
     rsync.set('no-inc-recursive'); //Don't incrementally recurse files (Makes progress percentage actually useful)
+  if(!argv.noDelete) {
+    rsync.set('delete'); //Delete files on server that don't exist on client
+    rsync.set('delete-excluded') //Delete files that are excluded but may already exist on server
+  }
 
   //Configure Logger
   logger = new LogGenerator(argv.logFormat, backupStr);

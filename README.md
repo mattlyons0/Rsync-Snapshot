@@ -68,6 +68,8 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - `--accurateProgress`
   - Recurse all directories before transferring any files to generate a more accurate file tree
   - *Note: This will increase memory usage substantially (10x increase is possible)*
+- `--noDelete`
+  - Don't delete existing files that don't exist in backup
 ##### Snapshot Management
 - `--maxSnapshots NUMBER`
   - Maximum number of snapshots
