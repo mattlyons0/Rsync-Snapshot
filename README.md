@@ -24,7 +24,10 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
 - NodeJS v7.6 or later - *async/await is used in codebase*
 - Rsync must be installed on the client and the server
 - One machine (client) must have SSH access to the other (server) if backing up over network, without a password (pubkey)
-  - This script is designed to be run from the machine data is being backed up from
+  - This script is designed to be run from the machine data is being backed up from (the client)
+  - This script requires root access on the client to backup `/` and root access on the server to be able to set correct file ownership
+    - See [Rsync files over SSH without root user](https://unix.stackexchange.com/a/92125/125231) for details on recommended method of using root on server
+    - If root is not used on server all files will be owned by the user logged in via ssh which will lead to errors on restore
 
 ### Usage
 - Install Globally `npm install -g rsync-snapshot`
@@ -69,7 +72,10 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
   - Recurse all directories before transferring any files to generate a more accurate file tree
   - *Note: This will increase memory usage substantially (10x increase is possible)*
 - `--noDelete`
-  - Don't delete existing files that don't exist in backup
+  - Don't delete existing files in `--dst`
+- `rsyncPath PATH` *Defaults to* `rsync`
+  - Command to execute rsync
+  - If using SSH `"sudo rsync"` is recommended however it requires additional setup as a password prompt can not be asked (/etc/sudoers file must be modified to set NOPASSWD for rsync, see [Rsync over ssh without root](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#92125))
 ##### Snapshot Management
 - `--maxSnapshots NUMBER`
   - Maximum number of snapshots
@@ -149,3 +155,4 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
     - [Snapshot Diff Script](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/diff_backup.pl.txt) Script to find differences between two rsync snapshots
     - [Partition Table Backup](http://www.sanitarium.net/unix_stuff/Kevin%27s%20Rsync%20Backups/getinfo.pl.txt) Script to backup the current partition table schema
   - [Rsync Snapshot Backup - Arch Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup) Arch Linux Wiki Page on Rsync and using snapshots
+  - [Rsync over SSH without root](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#92125) - A good setup for the permissions model required

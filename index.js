@@ -60,6 +60,8 @@ let backup = async () => {
     rsync.set('delete'); //Delete files on server that don't exist on client
     rsync.set('delete-excluded') //Delete files that are excluded but may already exist on server
   }
+  if(argv.rsyncPath)
+    rsync.set('rsync-path', argv.rsyncPath);
 
   //Configure Logger
   logger = new LogGenerator(argv.logFormat, backupStr);
