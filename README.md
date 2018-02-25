@@ -141,7 +141,10 @@ Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity
 - `send_files failed to open: Permission Denied`
 - Any other permission related error
   - These errors indicate there is an issue with the permissions rsync is being run with.
-  - rsync 
+- `An error occurred connecting to server while preparing for backup: sudo: no tty present and no askpass program specified`
+  - The backup snapshot management needs access to `sudo rm` and `sudo mv` without a password. If this error occurs the sudoers file (on the server) needs to be modified to allow `rm` and `mv` without a password.
+- `An error occurred connecting to server whiel preparing for backup: mkdir: cannot create directory: Permission denied`
+  - The backup user does not have permission to create directories in `--dst`
 
 ### Recovery
 - Partial Recovery
