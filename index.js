@@ -1,6 +1,7 @@
 'use strict';
 
 const Rsync = require('@mattlyons/rsync');
+const pkg = require('./package.json');
 const argv = require('minimist')(process.argv.slice(2));
 const path = require('path');
 const debug = require('debug')('RsyncSnapshot:index');
@@ -19,6 +20,11 @@ let linkDest;
 let tempDest;
 
 let backup = async () => {
+  //Version output
+  if(argv.version){
+    console.log(`${pkg.name}: v${pkg.version}`);
+    process.exit(0);
+  }
   //Required Params Check
   if (!argv.dst) {
     console.error('No arguments specified');
