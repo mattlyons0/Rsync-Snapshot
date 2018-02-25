@@ -111,6 +111,11 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
       - *Note: Since there is no snapshot management done in restore mode, restores can be done from server to client or client to server by switching the destination and source arguments*
     - If this flag is used snapshots are not used, this flag enables a simple rsync copy from the source to destination
       - All snapshot management flags will be ignored
+##### Debug Info
+  - `--version`
+    - Print package version and exit
+  - `--printCommand`
+    - Print rsync command used
 
 ### Data Consistency & Integrity
 Rsync Does **NOT** Ensure Consistency | Rsync **May** Ensure Integrity

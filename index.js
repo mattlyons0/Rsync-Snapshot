@@ -128,6 +128,9 @@ let backup = async () => {
 
   //Execute Rsync
   debug('Executing command: '+rsync.command());
+  if(argv.printCommand)
+    console.log(`Executing rsync with command: ${rsync.command()}`);
+
   rsyncPid = logger.startRsync(rsync);
 
   //Rename backup to remove .incomplete from name
