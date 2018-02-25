@@ -25,6 +25,7 @@
     "url": "https://github.com/mattlyons0/Rsync-Snapshot/issues"
   },
   "homepage": "https://github.com/mattlyons0/Rsync-Snapshot#readme",
+  "preferGlobal": true,
   "dependencies": {
     "@mattlyons/rsync": "^0.6.3",
     "debug": "^3.1.0",
