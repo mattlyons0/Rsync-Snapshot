@@ -16,3 +16,4 @@
 /home/*/.gvfs
 /home/*/.npm
 /swapfile
+/var/swap
