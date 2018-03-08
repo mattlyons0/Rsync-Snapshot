@@ -80,10 +80,16 @@ Although this package will attempt to create very few breaking changes, if said 
 - `--noDelete`
   - Don't delete existing files in `--dst`
 - `--noDeleteExcludes`
-  - Don't delete existing files that are excluded
+  - Don't delete existing files in `--dst` that are excluded
+  - Can be useful for restores where excluded files are hardware specific
 - `--rsyncPath PATH` *Defaults to* `"sudo rsync"`
   - Command to execute rsync
   - If using SSH `"sudo rsync"` is recommended however it requires additional setup as a password prompt can not be asked (/etc/sudoers file must be modified to set NOPASSWD for rsync, see [Rsync over ssh without root](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#92125))
+- `--setRsyncArg ARGUMENT=VALUE` *Can be used multiple times*
+  - Specify an argument to be passed to rsync and (optionally) its value
+  - Ex: `--setRsyncArgument checksum` or `--setRsyncArgument block-size=1024`
+- `--unsetRsyncArg ARGUMENT` *Can be used multiple times*
+  - Unset an argument which was already passed to rsync
 ##### Snapshot Management
 - `--maxSnapshots NUMBER`
   - Maximum number of snapshots

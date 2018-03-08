@@ -11,6 +11,8 @@ accurateProgress
 noDelete
 noDeleteExcludes
 rsyncPath
+setRsyncArg
+unsetRsyncArg
 
 #Snapshot Management
 maxSnapshots
