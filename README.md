@@ -44,6 +44,9 @@ See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/r
   - `ls -1 | sort -r` can be used to sort backups (most recent to least recent)
 - A symbolic link `latest` will always point to the most recent backup
 
+### Breaking Changes
+Although this package will attempt to create very few breaking changes, if said changes do occur the [Breaking Changes Notification Thread](https://github.com/mattlyons0/Rsync-Snapshot/issues/20) will be updated. Subscribe to the [thread](https://github.com/mattlyons0/Rsync-Snapshot/issues/20) in order to be notified of breaking changes.
+
 #### Parameters
 *Note: To wrap strings double quotes must be used. Ex: `--shell "ssh -p 2222"` must be used to specify ssh parameters. Single quotes will not be parsed correctly.*
 ##### Rsync
