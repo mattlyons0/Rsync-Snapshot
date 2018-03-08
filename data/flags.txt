@@ -9,6 +9,7 @@ excludeFile
 checksum
 accurateProgress
 noDelete
+noDeleteExcludes
 rsyncPath
 
 #Snapshot Management

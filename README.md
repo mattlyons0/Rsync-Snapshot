@@ -79,6 +79,8 @@ Although this package will attempt to create very few breaking changes, if said 
   - *Note: This will increase memory usage substantially (10x increase is possible)*
 - `--noDelete`
   - Don't delete existing files in `--dst`
+- `--noDeleteExcludes`
+  - Don't delete existing files that are excluded
 - `--rsyncPath PATH` *Defaults to* `"sudo rsync"`
   - Command to execute rsync
   - If using SSH `"sudo rsync"` is recommended however it requires additional setup as a password prompt can not be asked (/etc/sudoers file must be modified to set NOPASSWD for rsync, see [Rsync over ssh without root](https://unix.stackexchange.com/questions/92123/rsync-all-files-of-remote-machine-over-ssh-without-root-user/92125#92125))
