@@ -1,200 +1,71 @@
 'use strict';
+//Executes the logical flow of backups in a procedural fashion (using async/await to format the code nicely)
 
-const Rsync = require('@mattlyons/rsync');
-const pkg = require('./package.json');
-const argv = require('minimist')(process.argv.slice(2));
-const path = require('path');
-const debug = require('debug')('RsyncSnapshot:index');
-const LogGenerator = require('./lib/LogGenerator');
-const Incrementer = require('./lib/Incrementer');
+let Runner = require('./lib/Runner');
+let runner = new Runner(process.argv);
 
-let logger; //LogGenerator Instance
-let incrementer; //Incrementer instance
-
-let restore = argv.restore;
-let backupStr = restore?'Restore':'Backup';
-
-let rsync;
-let rsyncPid;
-let linkDest;
-let tempDest;
-
-let backup = async () => {
-  //Version output
-  if(argv.version){
-    console.log(`${pkg.name}: v${pkg.version}`);
-    process.exit(0);
-  }
-  //Required Params Check
-  if (!argv.dst) {
-    console.error('No arguments specified');
-    console.error('--dst is required');
-    process.exit(1);
-  }
-
-  //Configure Rsync
-  rsync = new Rsync()
-    .executableShell('/bin/bash')
-    .shell(argv.shell) //Optionally set shell (ex: 'ssh' for remote transfers)
-    .flags('aAXHltv') //Archive (recursive, preserve props...), Preserve ACLs, Preserve Extended Props, Preserve Hardlinks, Preserve Symlinks, Preserve Modification Times, Verbose
-    .set('numeric-ids') //Use Numeric Group & User IDs
-    .set('progress') //Show Current Filename
-    .set('info', 'progress2') //Show Total Progress
-    .source(argv.src || '/*');
-
-  //Configure Excludes
-  if(typeof argv.exclude === 'string')
-    rsync.exclude(argv.exclude);
-  else if(Array.isArray(argv.exclude)){
-    argv.exclude.forEach((excludeFile) => {
-      rsync.exclude(excludeFile);
-    });
-  }
-  //Configure ExcludeFile
-  if(typeof argv.excludeFile === 'string'){
-    rsync.set('exclude-from', path.resolve(argv.excludeFile));
-  } else { //Use default excludeFile
-    rsync.set('exclude-from', path.join(__dirname,'/data/defaultExclude.txt'));
-  }
-
-  //Configure Optional Flags
-  if(argv.checksum !== undefined)
-    rsync.set('checksum');
-  if(argv.accurateProgress !== undefined)
-    rsync.set('no-inc-recursive'); //Don't incrementally recurse files (Makes progress percentage actually useful)
-  if(!argv.noDelete) {
-    rsync.set('delete'); //Delete files on server that don't exist on client
-    rsync.set('delete-excluded') //Delete files that are excluded but may already exist on server
-  }
-  if(argv.rsyncPath)
-    rsync.set('rsync-path', argv.rsyncPath);
-  else
-    rsync.set('rsync-path', 'sudo rsync');
-
-  //Configure Logger
-  logger = new LogGenerator(argv.logFormat, backupStr);
+let execute = async () => {
   try {
-    await logger.setOutputFile(argv.logFile, argv.logFileLevel || 'ALL');
+    await runner.validateFlags();
+    runner.configureRsync();
+    await runner.configureLogger();
+
+    await runner.executePrepare();
+    await runner.executePreHooks();
+
+    runner.executeRsync();
+    await runner.configureCallbacks();
+
   } catch(e){
-    console.error(`Error: Log file '${argv.logFile}' is unwritable`, e);
+    mainProcessError(e);
   }
-  logger.logStateChange(`Preparing ${backupStr}`);
-
-  //Set Incremental Backup to Link From
-  incrementer = new Incrementer(logger, argv.shell, argv.dst);
-  if(!restore) {
-    incrementer.setMaxSnapshots(argv.maxSnapshots);
-    let prepared = await incrementer.prepareForBackup(); //Prepare for backup. Create incomplete dir and fetch link dest
-    if (!prepared) {
-      console.error('An error occurred preparing for incremental backup on server');
-      process.exit(2);
-    }
-    linkDest = incrementer.linkDest;
-    tempDest = incrementer.tempDest;
-    logger.setDestination(tempDest, linkDest);
-
-    let destSplit = argv.dst.split(':');
-    if (destSplit.length > 1) //SSH style syntax or local style
-      rsync.destination(`${destSplit[0]}:${tempDest}`);
-    else
-      rsync.destination(tempDest);
-    if (linkDest)
-      rsync.set('link-dest', linkDest);
-    else {
-      debug('No previous snapshots found, creating first snapshot');
-      logger.logger.log('stdout')({
-        msgType: 'progress',
-        status: 'No Previous Snapshots Detected, Creating Full Backup'
-      });
-    }
-  } else { //If we are restoring
-    rsync.destination(argv.dst);
-  }
-
-  //Configure Script Before Backup Hooks
-  let runBefore = [];
-  if(argv.runBefore !== undefined){
-    runBefore = argv.runBefore;
-    if(!Array.isArray(argv.runBefore))
-      runBefore = [argv.runBefore];
-  }
-
-  if(runBefore.length){
-    logger.logStateChange(`Executing Pre ${backupStr} Hooks`);
-    for(let executablePath of runBefore){
-      await incrementer.executeScriptHook(executablePath);
-    }
-  }
-
-  //Execute Rsync
-  debug('Executing command: '+rsync.command());
-  if(argv.printCommand)
-    console.log(`Executing rsync with command: ${rsync.command()}`);
-
-  rsyncPid = logger.startRsync(rsync);
-
-  //Rename backup to remove .incomplete from name
-  logger.addSuccessCallback(async () => {
-    if(restore)
-      return;
-
-    let finalized = await incrementer.finalizeBackup();
-    if(finalized) {
-      logger.setFinalDestination(incrementer.finalDest);
-      await incrementer.deleteOldSnapshots();
-    }
-  });
-
-  //Configure Script After Backup Hooks
-  let runAfter = [];
-  if(argv.runAfter !== undefined){
-    runAfter = argv.runAfter;
-    if(!Array.isArray(argv.runAfter))
-      runAfter = [argv.runAfter];
-  }
-
-  if(runAfter.length){
-    logger.addSuccessCallback(() => {
-      logger.logStateChange(`Executing Post ${backupStr} Hooks`);
-    });
-
-    runAfter.forEach((executablePath) => {
-      logger.addSuccessCallback(async () => {
-        await incrementer.executeScriptHook(executablePath);
-      });
-    });
-  }
-
-  //Success Message
-  logger.addSuccessCallback(() => {
-    logger.logStateChange(`${backupStr} Finalized`)
-  });
 };
 
-function quit () { //Handle killing rsync process
-  if(rsyncPid) //Kill Rsync on exit codes
-    rsyncPid.kill();
+function quit (code) { //Handle killing rsync process
+  let errMsg = code === 0 ? '' : `Process Received Exit Code: ${code}`;
+  let err = new Error(errMsg);
+  err.code = code;
+  delete err.stack;
+
+  mainProcessError(err);
 }
 
+async function mainProcessError(err){
+  if(err.code !== 0) {
+    let logged = false;
+
+    try {
+      if(runner.logger) {
+        await runner.logger.logger.log('stderr')(err);
+        await runner.logger.logStateChange(`${runner.backupStr} Failed`);
+        logged = true;
+      }
+    } catch (newErr) {
+      console.error('Error logging with logger:', newErr);
+    }
+
+    if(!logged) {
+      if(err.stack)
+        console.error(err.stack);
+      else
+        console.error(err.toString());
+    }
+  }
+
+  runner.killRsync();
+
+  //Exit with specified code or 99
+  if(err.code !== undefined)
+    process.exit(err.code);
+  else
+    process.exit(99);
+}
+
+//Reasons to exit (gracefully or not)
 process.on('SIGINT', quit);
 process.on('SIGTERM', quit);
-process.on('exit', quit);
-
-
-//Execute Backup
-backup().catch(mainProcessError);
-
 process.on('unhandledRejection', mainProcessError);
 process.on('uncaughtException', mainProcessError);
 
-function mainProcessError(err){
-  try {
-    if (logger) {
-      logger.logger.log('stderr')(err);
-    } else {
-      throw new Error();
-    }
-  } catch(newErr){
-    console.error(err);
-  }
-}
+//Execute Backup
+execute().catch(mainProcessError);

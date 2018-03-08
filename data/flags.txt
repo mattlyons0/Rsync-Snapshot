@@ -1,0 +1,31 @@
+#This file specifies the allowed flags (each prepended with --)
+
+#Rsync Flags:
+src
+dst
+shell
+exclude
+excludeFile
+checksum
+accurateProgress
+noDelete
+rsyncPath
+
+#Snapshot Management
+maxSnapshots
+
+#Script Hooks
+runBefore
+runAfter
+
+#Logging
+logFormat
+logFile
+logFileLevel
+
+#Restore
+restore
+
+#Debug Info
+version
+printCommand
