@@ -5,7 +5,7 @@ Rsync Snapshot
 
 A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
 
-See [Do It Yourself Backup System Using Rsync](http://www.sanitarium.net/golug/rsync_backups_2010.html) for a detailed explanation of how incremental backups using rsync work
+See [Incremental Bacukps with rsync](https://medium.com/@mattlyons0/incremental-backups-with-rsync-9c8e3f14c2c) for details on environment configuration
 
 ### Features
 - Full System Backup
