@@ -3,7 +3,7 @@ Rsync Snapshot
 
 [![NPM](https://nodei.co/npm/rsync-snapshot.png)](https://nodei.co/npm/rsync-snapshot/)
 
-A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup)
+A Node.js implementation of incremental full system backups using rsync based on [rsync - Arch Linux Wiki](https://wiki.archlinux.org/index.php/rsync#Snapshot_backup). Currently only tested on Linux.
 
 See [Incremental Bacukps with rsync](https://medium.com/@mattlyons0/incremental-backups-with-rsync-9c8e3f14c2c) for details on environment configuration
 
